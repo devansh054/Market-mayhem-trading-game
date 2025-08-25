@@ -85,3 +85,5 @@ Feel free to submit issues and enhancement requests!
 ## License 📄
 
 This project is licensed under the MIT License.
+
+![image alt](https://github.com/devansh054/Market-mayhem-trading-game/blob/b8e0b0216de54c5f7ca82ddcfee59b173aca7166/APP_UI.jpeg)
