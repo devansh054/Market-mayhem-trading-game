@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: market-mayhem-backend
+    env: java
+    rootDir: market-mayhem
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar
+    plan: free
+    envVars:
+      - key: JAVA_VERSION
+        value: "17"
+      - key: MAVEN_OPTS
+        value: "-Xmx1024m"
