@@ -6,19 +6,23 @@ spring:
     name: market-mayhem
   
   datasource:
-    url: jdbc:postgresql://localhost:5435/trading
-    username: trading
-    password: trading
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
   
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
     show-sql: false
+  
+  h2:
+    console:
+      enabled: true
   
   # Optional Kafka configuration
   kafka:
