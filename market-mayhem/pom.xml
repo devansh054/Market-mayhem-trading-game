@@ -81,6 +81,13 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
+        <!-- H2 Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Optional: Kafka -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
