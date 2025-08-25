@@ -26,6 +26,7 @@
 - **WebSocket** - Real-time communication
 - **STOMP** - Messaging protocol
 - **Maven** - Dependency management
+- **Database** - Postgresql
 
 ### Frontend
 - **HTML5** - Structure
