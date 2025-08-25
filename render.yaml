@@ -3,7 +3,7 @@ services:
     name: market-mayhem-backend
     env: java
     rootDir: market-mayhem
-    buildCommand: ./mvnw clean package -DskipTests
+    buildCommand: chmod +x ./mvnw && ./mvnw clean package -DskipTests
     startCommand: java -jar target/*.jar
     plan: free
     envVars:
