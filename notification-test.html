@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 9999;
+            animation: slideInRight 0.5s ease-out;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .success-btn {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .error-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Notification System Test</h1>
+    <p>Click the buttons to test notifications:</p>
+    
+    <button class="success-btn" onclick="showNotification('Success notification test!', 'success')">Test Success</button>
+    <button class="error-btn" onclick="showNotification('Error notification test!', 'error')">Test Error</button>
+    
+    <div id="log" style="margin-top: 20px; background: #333; padding: 10px; border-radius: 5px;">
+        <h3>Console Log:</h3>
+        <div id="console"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            console.log(message);
+            const consoleDiv = document.getElementById('console');
+            consoleDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        }
+        
+        function showNotification(message, type) {
+            log('🔔 showNotification called: ' + message + ', type: ' + type);
+            
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                log('🔔 Removing existing notification');
+                existing.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            log('🔔 Notification added to DOM: ' + notification.className);
+            log('🔔 Notification element: ' + notification.outerHTML);
+            
+            // Force a reflow to ensure the element is rendered
+            notification.offsetHeight;
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    log('🔔 Removing notification after timeout');
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        log('Page loaded - notification system ready');
+    </script>
+</body>
+</html>

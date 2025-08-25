@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: market-mayhem
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5435/trading
+    username: trading
+    password: trading
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+  
+  # Optional Kafka configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: market-mayhem
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.marketmayhem.dto"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Custom game configuration
+game:
+  session:
+    duration-minutes: 8
+  symbols:
+    - AAPL
+    - MSFT
+  market-data:
+    tick-interval-ms: 250
+  risk:
+    max-order-size: 50000
+    restricted-symbols:
+      - GME
+  kafka:
+    enabled: false
+    topics:
+      trades-out: trades.out
+      market-data-in: marketdata.in
+
+logging:
+  level:
+    com.example.marketmayhem: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.web.socket: DEBUG

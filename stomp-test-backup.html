@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Mayhem - Trading Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(116, 192, 252, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Login Page Styles */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at center, rgba(116, 192, 252, 0.1) 0%, transparent 70%);
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            margin: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% {
+                filter: drop-shadow(0 0 10px rgba(116, 192, 252, 0.5));
+                transform: scale(1);
+            }
+            100% {
+                filter: drop-shadow(0 0 20px rgba(116, 192, 252, 0.8));
+                transform: scale(1.02);
+            }
+        }
+
+        .logo p {
+            color: #b8c5d1;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #74c0fc;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #74c0fc;
+            box-shadow: 0 0 0 3px rgba(116, 192, 252, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .room-option {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .room-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(116, 192, 252, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .room-option:hover::before {
+            left: 100%;
+        }
+
+        .room-option:hover {
+            border-color: #74c0fc;
+            background: rgba(116, 192, 252, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .room-option.selected {
+            border-color: #51cf66;
+            background: rgba(81, 207, 102, 0.2);
+            box-shadow: 0 0 20px rgba(81, 207, 102, 0.3);
+        }
+
+        .room-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .room-players {
+            font-size: 0.9rem;
+            color: #b8c5d1;
+        }
+
+        .join-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .join-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .join-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .join-btn:hover {
+            background: linear-gradient(45deg, #40c057, #37b24d);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(81, 207, 102, 0.4);
+        }
+
+        .join-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Game Screen Styles */
+        .game-screen {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .game-title h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .room-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .timer {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .connected {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            box-shadow: 0 0 15px rgba(81, 207, 102, 0.5);
+        }
+
+        .disconnected {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.7;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #b8c5d1;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .pnl-positive { color: #51cf66; }
+        .pnl-negative { color: #ff6b6b; }
+
+        /* Fixed Players Panel */
+        .players-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .players-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .players-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, #74c0fc, #339af0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .player-count {
+            background: rgba(116, 192, 252, 0.2);
+            color: #74c0fc;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .players-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .player-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-3px);
+        }
+
+        .player-item.current-player {
+            background: rgba(81, 207, 102, 0.2);
+            border-color: rgba(81, 207, 102, 0.5);
+            box-shadow: 0 0 15px rgba(81, 207, 102, 0.3);
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .player-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .status-you {
+            background: rgba(81, 207, 102, 0.3);
+            color: #51cf66;
+        }
+
+        .status-online {
+            background: rgba(116, 192, 252, 0.3);
+            color: #74c0fc;
+        }
+
+        .no-players {
+            color: #b8c5d1;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+
+        .panel h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            background: linear-gradient(45deg, #74c0fc, #339af0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .order-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .order-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #e0e6ed;
+            font-weight: 500;
+        }
+
+        .order-form input, .order-form select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .order-form input:focus, .order-form select:focus {
+            outline: none;
+            border-color: #74c0fc;
+            box-shadow: 0 0 0 3px rgba(116, 192, 252, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .buy-btn {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .buy-btn:hover {
+            background: linear-gradient(45deg, #40c057, #37b24d);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(81, 207, 102, 0.4);
+        }
+
+        .sell-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+            color: white;
+        }
+
+        .sell-btn:hover {
+            background: linear-gradient(45deg, #ff5252, #f03e3e);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .market-data {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .symbol-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .symbol-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .symbol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .symbol-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .price-item {
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .bid-price { 
+            color: #ff6b6b; 
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .ask-price { 
+            color: #51cf66; 
+            background: rgba(81, 207, 102, 0.1);
+        }
+        
+        .last-price { 
+            color: #74c0fc; 
+            background: rgba(116, 192, 252, 0.1);
+        }
+
+        .trades-panel {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .trade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .trade-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .trade-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .trade-symbol {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .trade-details {
+            font-size: 0.9rem;
+            color: #b8c5d1;
+        }
+
+        .trade-price {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #74c0fc;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 9999;
+            animation: slideInRight 0.5s ease-out;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #ff6b6b, #ff5252);
+        }
+
+        .notification.info {
+            background: linear-gradient(45deg, #74c0fc, #339af0);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #74c0fc;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(45deg, #5a6268, #495057);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .players-panel {
+                width: 250px;
+            }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .players-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .player-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .room-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .players-panel {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="logo">
+                <h1>🎯 Market Mayhem</h1>
+                <p>Real-time Multiplayer Trading Game</p>
+            </div>
+
+            <form id="login-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label>👤 Player Name</label>
+                    <div class="input-wrapper">
+                        <div class="input-icon">👤</div>
+                        <input type="text" id="player-name" placeholder="Enter your trading name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🏠 Select Trading Room</label>
+                    <div class="room-grid">
+                        <div class="room-option" data-room="1">
+                            <div class="room-name">🌟 Room Alpha</div>
+                            <div class="room-players">2 players</div>
+                        </div>
+                        <div class="room-option" data-room="2">
+                            <div class="room-name">🚀 Room Beta</div>
+                            <div class="room-players">5 players</div>
+                        </div>
+                        <div class="room-option" data-room="3">
+                            <div class="room-name">💎 Room Gamma</div>
+                            <div class="room-players">1 player</div>
+                        </div>
+                        <div class="room-option" data-room="vip">
+                            <div class="room-name">👑 VIP Room</div>
+                            <div class="room-players">3 players</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🔧 Custom Room (Optional)</label>
+                    <div class="input-wrapper">
+                        <div class="input-icon">🔧</div>
+                        <input type="text" id="custom-room" placeholder="Enter custom room ID">
+                    </div>
+                </div>
+
+                <button type="button" class="join-btn" onclick="joinGame()">
+                    🎮 Start Trading
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="game-screen">
+        <div class="game-header">
+            <div class="game-title">
+                <h1>🎯 Market Mayhem</h1>
+                <div id="status" class="status disconnected">
+                    <button onclick="placeOrder('SELL')" class="sell-btn">SELL</button>
+                </div>
+                
+            </div>
+            <div class="room-info">
+                <div>👤 <span id="player-name-display">Player</span></div>
+                <div>🏠 <span id="current-room">Room 1</span></div>
+                <div class="timer" id="session-timer">08:00</div>
+                <button class="logout-btn" onclick="logout()">🚪 Leave Game</button>
+            </div>
+        </div>
+
+        <div class="player-stats">
+            <div class="stat-card">
+                <div id="pnl-value" class="stat-value">$0.00</div>
+                <div class="stat-label">💰 Profit & Loss</div>
+            </div>
+            <div class="stat-card">
+                <div id="violations-value" class="stat-value">0</div>
+                <div class="stat-label">⚠️ Risk Violations</div>
+            </div>
+            <div class="stat-card">
+                <div id="trades-count" class="stat-value">0</div>
+                <div class="stat-label">🔄 Trades Executed</div>
+            </div>
+            <div class="stat-card">
+                <div id="rank-value" class="stat-value">#-</div>
+                <div class="stat-label">🏆 Current Rank</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Order Entry Panel -->
+            <div class="panel">
+                <h3>📋 Place Order</h3>
+                <div class="order-form">
+                    <div class="form-group">
+                        <label>📊 Symbol</label>
+                        <select id="symbol" onchange="updateSymbolData()">
+                            <option value="AAPL">🍎 AAPL - Apple Inc.</option>
+                            <option value="MSFT">💻 MSFT - Microsoft</option>
+                            <option value="GME">🎮 GME - GameStop (RESTRICTED)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📈 Quantity</label>
+                        <input type="number" id="quantity" value="100" min="1" max="50000">
+                    </div>
+                    <div class="form-group">
+                        <label>💵 Price</label>
+                        <input type="number" id="price" value="150.00" step="0.01" min="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>⚙️ Order Type</label>
+                        <select id="order-type" onchange="togglePriceField()">
+                            <option value="LIMIT">📌 Limit Order</option>
+                            <option value="MARKET">⚡ Market Order</option>
+                        </select>
+                    </div>
+                    <div class="order-buttons">
+                        <button class="btn buy-btn" onclick="placeOrder('BUY')">
+                            📈 BUY
+                        </button>
+                        <button class="btn sell-btn" onclick="placeOrder('SELL')">
+                            📉 SELL
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Data Panel -->
+            <div class="panel">
+                <h3>📊 Live Market Data</h3>
+                <div class="market-data" id="market-data">
+                    <div style="text-align: center; color: #b8c5d1; margin: 50px 0;">
+                        📡 Waiting for market data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Events Panel -->
+            <div class="panel">
+                <h3>🔄 Recent Trades</h3>
+                <div class="trades-panel" id="trades-panel">
+                    <div style="text-align: center; color: #b8c5d1; margin: 50px 0;">
+                        📋 No trades yet...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Panel (Fixed Position) -->
+        <div class="players-panel">
+            <div class="players-header">
+                <h3>👥 Players in Room</h3>
+                <div class="player-count" id="player-count">1/3</div>
+            </div>
+            <div class="players-list" id="players-list">
+                <div class="no-players">Waiting for players...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        // Global variables
+        let client;
+        let currentRoom = '1';
+        let playerName = '';
+        let marketData = {};
+        let playerStats = { pnl: 0, violations: 0, trades: 0, rank: '-' };
+        let sessionTimeLeft = 8 * 60; // 8 minutes in seconds
+        let timerInterval;
+        let tradesCount = 0;
+        let roomPlayerLists = {};
+        let roomPlayerCounts = {};
+
+        // Initialize particles background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Room selection logic
+        document.querySelectorAll('.room-option').forEach(room => {
+            room.addEventListener('click', function() {
+                document.querySelectorAll('.room-option').forEach(r => r.classList.remove('selected'));
+                this.classList.add('selected');
+                currentRoom = this.dataset.room;
+                
+                // Clear custom room if preset room is selected
+                document.getElementById('custom-room').value = '';
+            });
+        });
+
+        // Custom room input handler
+        document.getElementById('custom-room').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.querySelectorAll('.room-option').forEach(r => r.classList.remove('selected'));
+                currentRoom = this.value.trim();
+            }
+        });
+
+        // Login function
+        function login() {
+            const nameInput = document.getElementById('player-name');
+            const roomInput = document.getElementById('custom-room');
+            const selectedRoom = document.querySelector('.room-option.selected');
+            
+            playerName = nameInput.value.trim();
+            
+            if (!playerName) {
+                showNotification('Please enter your name', 'error');
+                return;
+            }
+            
+            console.log('🔑 Login attempt with player name:', playerName);
+            
+            // Determine room
+            if (selectedRoom) {
+                const roomType = selectedRoom.dataset.room;
+                if (roomType === 'custom') {
+                    currentRoom = roomInput.value.trim();
+                    if (!currentRoom) {
+                        showNotification('Please enter a custom room ID', 'error');
+                        return;
+                    }
+                } else {
+                    currentRoom = roomType;
+                }
+            } else {
+                showNotification('Please select a room type', 'error');
+                return;
+            }
+            
+            console.log('🏠 Selected room:', currentRoom);
+            
+            // Add player to room in localStorage
+            if (!addPlayerToRoom(currentRoom, playerName)) {
+                console.log('❌ Failed to add player to room');
+                return; // Room is full
+            }
+            
+            console.log('🎉 Successfully added to room, proceeding with login...');
+            
+            // Update UI
+            document.getElementById('current-player').textContent = playerName;
+            document.getElementById('current-room').textContent = currentRoom;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            console.log('✅ Login successful - playerName set to:', playerName);
+            
+            // Show join notification
+            showPlayerJoinNotification(playerName, true);
+            
+            // Start the game
+            initializeGame();
+        }
+
+        // Initialize game after login
+        function initializeGame() {
+            // Start session timer
+            startSessionTimer();
+            
+            // Connect to WebSocket
+            connect();
+            
+            showNotification(`Welcome ${playerName}! Joined Room ${currentRoom}`, 'success');
+            
+            // Update players display and start monitoring immediately
+            updatePlayersDisplay();
+            startPlayerListMonitoring();
+        }
+
+        // Session timer
+        function startSessionTimer() {
+            timerInterval = setInterval(() => {
+                sessionTimeLeft--;
+                
+                const minutes = Math.floor(sessionTimeLeft / 60);
+                const seconds = sessionTimeLeft % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                document.getElementById('session-timer').textContent = timeString;
+                
+                if (sessionTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    announceWinner();
+                    setTimeout(() => logout(), 5000); // Give time to see winner announcement
+                }
+            }, 1000);
+        }
+
+        // Announce winner at end of session
+        function announceWinner() {
+            const finalPnL = playerStats.pnl || 0;
+            
+            if (finalPnL > 0) {
+                showNotification(`🎉 Session Complete! You won with $${finalPnL.toFixed(2)} profit!`, 'success');
+            } else if (finalPnL < 0) {
+                showNotification(`💸 Session Complete! You lost $${Math.abs(finalPnL).toFixed(2)}`, 'error');
+            } else {
+                showNotification(`⚖️ Session Complete! You broke even ($0.00)`, 'success');
+            }
+            
+            // Update timer display
+            document.getElementById('session-timer').textContent = 'ENDED';
+            document.getElementById('session-timer').style.background = 'linear-gradient(45deg, #6c757d, #5a6268)';
+        }
+
+        // Logout function
+        function logout() {
+            if (client && client.connected) {
+                client.disconnect();
+            }
+            
+            clearInterval(timerInterval);
+            
+            // Reset game state
+            sessionTimeLeft = 8 * 60;
+            playerStats = { pnl: 0, violations: 0, trades: 0, rank: '-' };
+            marketData = {};
+            tradesCount = 0;
+            
+            // Show login screen
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            
+            // Reset form
+            document.getElementById('player-name').value = '';
+            document.getElementById('custom-room').value = '';
+            document.querySelectorAll('.room-option').forEach(r => r.classList.remove('selected'));
+            
+            showNotification('Logged out successfully', 'success');
+        }
+
+        // WebSocket connection
+        function connect() {
+            const socket = new SockJS('http://localhost:63901/ws');
+            client = Stomp.over(socket);
+            client.debug = null;
+            
+            client.connect({}, function(frame) {
+                console.log('✅ Connected to Market Mayhem');
+                console.log('✅ Session ID:', client.ws._transport.url);
+                updateStatus('Connected', true);
+                subscribeToTopics();
+                showNotification('Connected to trading server!', 'success');
+            }, function(error) {
+                console.error('❌ Connection error:', error);
+                updateStatus('Connection Failed', false);
+                setTimeout(() => {
+                    updateStatus('Reconnecting...', false);
+                    connect();
+                }, 1000);
+                showNotification('Connection failed. Retrying...', 'error');
+            });
+        }
+
+        // Subscribe to WebSocket topics
+        function subscribeToTopics() {
+            if (!client || !client.connected) return;
+
+            // Subscribe to market data for all rooms (market data is global)
+            client.subscribe('/topic/room/1/ticks', function(message) {
+                const tick = JSON.parse(message.body);
+                updateMarketData(tick);
+            });
+
+            // Subscribe to trade events for current room only
+            client.subscribe('/topic/room/' + currentRoom + '/trades', function(message) {
+                const trade = JSON.parse(message.body);
+                addTradeEvent(trade);
+            });
+
+            // Subscribe to player score updates
+            client.subscribe('/topic/scores', function(message) {
+                const scoreUpdate = JSON.parse(message.body);
+                if (scoreUpdate.playerId === playerName) {
+                    updatePlayerStats(scoreUpdate);
+                }
+            });
+
+            // Subscribe to error messages for current player
+            client.subscribe('/user/queue/errors', function(message) {
+                const error = JSON.parse(message.body);
+                showNotification(error.message || error.details || 'An error occurred', 'error');
+            });
+
+            // Subscribe to room-specific error messages
+            client.subscribe('/topic/room/' + currentRoom + '/errors', function(message) {
+                const error = JSON.parse(message.body);
+                showNotification(error.message || error.details || 'An error occurred', 'error');
+            });
+
+            // Try direct topic subscription
+            client.subscribe('/topic/errors', function(message) {
+                const error = JSON.parse(message.body);
+                
+                if (error.code === 'RISK_VIOLATION') {
+                    showNotification(`Risk Violation: ${error.message}`, 'error');
+                } else {
+                    showNotification(`Order Error: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        // Update connection status
+        function updateStatus(text, isConnected) {
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = isConnected ? 
+                `<span style="color: #51cf66;">●</span> ${text}` : 
+                `<span class="loading"></span> ${text}`;
+            statusEl.className = 'status ' + (isConnected ? 'connected' : 'disconnected');
+        }
+
+        // Update player statistics
+        function updatePlayerStats(stats) {
+            const previousViolations = playerStats.violations || 0;
+            playerStats = stats;
+            
+            // Update P&L
+            const pnlEl = document.getElementById('pnl-value');
+            const pnl = parseFloat(stats.pnl || 0);
+            pnlEl.textContent = '$' + pnl.toFixed(2);
+            pnlEl.className = 'stat-value ' + (pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
+            
+            // Update violations
+            document.getElementById('violations-value').textContent = stats.violations || 0;
+            
+            // Update rank
+            document.getElementById('rank-value').textContent = '#' + (stats.rank || '-');
+            
+            // Show notification if violations increased (since error messages aren't coming through)
+            if (stats.violations > previousViolations) {
+                const newViolations = stats.violations - previousViolations;
+                showNotification(`⚠️ Risk Violation! Total violations: ${stats.violations}`, 'error');
+            }
+        }
+
+        // Manual P&L calculation from trades
+        function calculatePnLFromTrade(trade) {
+            const tradeValue = parseFloat(trade.price) * trade.qty;
+            
+            if (trade.buyPlayer === playerName) {
+                // Player bought - subtract cost
+                playerStats.pnl = (playerStats.pnl || 0) - tradeValue;
+            } else if (trade.sellPlayer === playerName) {
+                // Player sold - add revenue
+                playerStats.pnl = (playerStats.pnl || 0) + tradeValue;
+            }
+            
+            // Update display
+            const pnlEl = document.getElementById('pnl-value');
+            const pnl = playerStats.pnl;
+            pnlEl.textContent = '$' + pnl.toFixed(2);
+            pnlEl.className = 'stat-value ' + (pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
+        }
+
+        // Update market data display
+        function updateMarketData(tick) {
+            marketData[tick.symbol] = tick;
+            
+            const container = document.getElementById('market-data');
+            container.innerHTML = '';
+            
+            Object.values(marketData).forEach(data => {
+                const symbolCard = document.createElement('div');
+                symbolCard.className = 'symbol-card';
+                symbolCard.innerHTML = `
+                    <div class="symbol-header">
+                        <div class="symbol-name">${data.symbol}</div>
+                        <small style="color: #b8c5d1;">${new Date(data.timestamp).toLocaleTimeString()}</small>
+                    </div>
+                    <div class="price-grid">
+                        <div class="price-item bid-price">
+                            <div>Bid</div>
+                            <div>$${parseFloat(data.bid).toFixed(2)}</div>
+                        </div>
+                        <div class="price-item ask-price">
+                            <div>Ask</div>
+                            <div>$${parseFloat(data.ask).toFixed(2)}</div>
+                        </div>
+                        <div class="price-item last-price">
+                            <div>Last</div>
+                            <div>$${parseFloat(data.last).toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(symbolCard);
+            });
+        }
+
+        // Place order function
+        function placeOrder() {
+            const symbol = document.getElementById('symbol').value;
+            const side = document.getElementById('side').value;
+            const orderType = document.getElementById('order-type').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = orderType === 'LIMIT' ? parseFloat(document.getElementById('price').value) : null;
+            
+            if (!quantity || quantity <= 0) {
+                showNotification('Please enter a valid quantity', 'error');
+                return;
+            }
+            
+            if (orderType === 'LIMIT' && (!price || price <= 0)) {
+                showNotification('Please enter a valid price for limit orders', 'error');
+                return;
+            }
+            
+            const order = {
+                symbol: symbol,
+                side: side,
+                orderType: orderType,
+                quantity: quantity,
+                price: price,
+                player: playerName,
+                room: currentRoom
+            };
+            
+            console.log('🚀 Sending order:', order);
+            console.log('📝 Current playerName variable:', playerName);
+            console.log('🏠 Current room:', currentRoom);
+            
+            client.send('/app/order', {}, JSON.stringify(order));
+            showNotification(`${side} order placed for ${quantity} ${symbol}`, 'info');
+            
+            // Clear form
+            document.getElementById('quantity').value = '';
+            if (orderType === 'LIMIT') {
+                document.getElementById('price').value = '';
+            }
+        }
+
+        // Add trade event to display (only show trades involving current player)
+        function addTradeEvent(trade) {
+            // Only show trades that involve the current player
+            if (trade.buyPlayer !== playerName && trade.sellPlayer !== playerName) {
+                return;
+            }
+            
+            const container = document.getElementById('trades-panel');
+            
+            if (container.innerHTML.includes('No trades yet')) {
+                container.innerHTML = '';
+            }
+            
+            // Parse price properly (handle BigDecimal from backend)
+            let tradePrice;
+            if (typeof trade.price === 'object' && trade.price !== null) {
+                // Handle BigDecimal object from backend
+                tradePrice = parseFloat(trade.price.toString()) || parseFloat(trade.price) || 0;
+            } else {
+                // Handle raw number that needs decimal scaling
+                const rawPrice = parseFloat(trade.price) || 0;
+                
+                // Backend sends price scaled by 126667 (19000000 / 126667 ≈ 150.00)
+                if (rawPrice > 100000) {
+                    tradePrice = rawPrice / 126667; // Correct scaling factor
+                } else if (rawPrice > 1000) {
+                    tradePrice = rawPrice / 100;
+                } else {
+                    tradePrice = rawPrice;
+                }
+            }
+            
+            // Determine if player was buyer or seller
+            const playerSide = trade.buyPlayer === playerName ? 'BOUGHT' : 'SOLD';
+            const counterparty = trade.buyPlayer === playerName ? trade.sellPlayer : trade.buyPlayer;
+            
+            const tradeItem = document.createElement('div');
+            tradeItem.className = 'trade-item';
+            tradeItem.innerHTML = `
+                <div class="trade-info">
+                    <div class="trade-symbol">${trade.symbol}</div>
+                    <div class="trade-details">
+                        ${playerSide} ${trade.qty} shares @ $${tradePrice.toFixed(2)}
+                        <br><small>vs ${counterparty}</small>
+                    </div>
+                </div>
+                <div class="trade-price" style="color: ${playerSide === 'BOUGHT' ? '#ff6b6b' : '#51cf66'}">
+                    ${playerSide === 'BOUGHT' ? '-' : '+'}$${(tradePrice * trade.qty).toFixed(2)}
+                </div>
+            `;
+            
+            container.insertBefore(tradeItem, container.firstChild);
+            
+            // Keep only last 15 trades
+            while (container.children.length > 15) {
+                container.removeChild(container.lastChild);
+            }
+            
+            // Update trade count
+            tradesCount++;
+            document.getElementById('trades-count').textContent = tradesCount;
+            
+            // Calculate P&L from this trade
+            const tradeForPnL = { ...trade, price: tradePrice };
+            calculatePnLFromTrade(tradeForPnL);
+            
+            // Show success notification for executed trade
+            const notificationMessage = `${playerSide} order executed: ${trade.qty} ${trade.symbol} @ $${tradePrice.toFixed(2)}`;
+            showNotification(notificationMessage, 'success');
+        }
+
+        // Toggle price field for market orders
+        function togglePriceField() {
+            const orderType = document.getElementById('order-type').value;
+            const priceField = document.getElementById('price');
+            
+            if (orderType === 'MARKET') {
+                priceField.disabled = true;
+                priceField.style.opacity = '0.5';
+                priceField.value = '';
+            } else {
+                priceField.disabled = false;
+                priceField.style.opacity = '1';
+            }
+        }
+
+        // Update symbol data when changed
+        function updateSymbolData() {
+            const selectedSymbol = document.getElementById('symbol').value;
+            // Update price field with current market price if available
+            if (marketData[selectedSymbol]) {
+                const midPrice = (parseFloat(marketData[selectedSymbol].bid) + parseFloat(marketData[selectedSymbol].ask)) / 2;
+                document.getElementById('price').value = midPrice.toFixed(2);
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const existing = document.querySelector('.notification');
+            if (existing) {
+                existing.remove();
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Force a reflow to ensure the element is rendered
+            notification.offsetHeight;
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Room capacity check with localStorage synchronization
+        function addPlayerToRoom(roomId, playerName) {
+            const storageKey = `room_${roomId}_players`;
+            let roomPlayers = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            console.log('🚪 Attempting to add player to room:', { roomId, playerName, currentPlayers: roomPlayers });
+            
+            // Check if player already in room
+            if (roomPlayers.includes(playerName)) {
+                showNotification('You are already in this room!', 'error');
+                return false;
+            }
+            
+            // Check capacity (3 players max)
+            if (roomPlayers.length >= 3) {
+                showNotification('Room is full! (3/3 players)', 'error');
+                return false;
+            }
+            
+            // Add player to room
+            roomPlayers.push(playerName);
+            localStorage.setItem(storageKey, JSON.stringify(roomPlayers));
+            
+            console.log('✅ Player added to room successfully:', roomPlayers);
+            
+            // Update global tracking
+            roomPlayerLists[roomId] = roomPlayers;
+            roomPlayerCounts[roomId] = roomPlayers.length;
+            
+            return true;
+        }
+        
+        // Update players list display with all players in room
+        function updatePlayersDisplay() {
+            const playersList = document.getElementById('players-list');
+            const playerCount = document.getElementById('player-count');
+            
+            if (!playersList || !playerCount) {
+                console.log('Players display elements not found');
+                return;
+            }
+            
+            // Get current room players from localStorage
+            const storageKey = `room_${currentRoom}_players`;
+            const currentRoomPlayers = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            console.log(`Updating players display for room ${currentRoom}:`, currentRoomPlayers);
+            
+            playerCount.textContent = `${currentRoomPlayers.length}/3`;
+            
+            if (currentRoomPlayers.length === 0) {
+                playersList.innerHTML = '<div class="no-players">Waiting for players...</div>';
+                return;
+            }
+            
+            playersList.innerHTML = currentRoomPlayers.map(player => `
+                <div class="player-item ${player === playerName ? 'current-player' : ''}">
+                    <div class="player-name">
+                        ${player === playerName ? '👤' : '🎮'} ${player}
+                    </div>
+                    <div class="player-status ${player === playerName ? 'status-you' : 'status-online'}">
+                        ${player === playerName ? 'You' : 'Online'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Show player join notification
+        function showPlayerJoinNotification(playerName, isCurrentPlayer = false) {
+            const message = isCurrentPlayer 
+                ? `Welcome to Room ${currentRoom}!` 
+                : `${playerName} joined the room`;
+            
+            showNotification(message, 'success');
+            
+            // Update display
+            updatePlayersDisplay();
+        }
+        
+        // Monitor localStorage changes for real-time player list updates
+        function startPlayerListMonitoring() {
+            // Check for localStorage changes every 200ms (faster)
+            setInterval(() => {
+                updatePlayersDisplay();
+            }, 200);
+            
+            // Also listen for storage events (works across tabs)
+            window.addEventListener('storage', function(e) {
+                if (e.key && e.key.startsWith('room_') && e.key.endsWith('_players')) {
+                    const roomId = e.key.replace('room_', '').replace('_players', '');
+                    if (roomId === currentRoom) {
+                        console.log('Storage event detected for room:', roomId);
+                        updatePlayersDisplay();
+                        
+                        // Show notification for new players
+                        const newPlayers = JSON.parse(e.newValue || '[]');
+                        const oldPlayers = JSON.parse(e.oldValue || '[]');
+                        
+                        console.log('Players changed:', { old: oldPlayers, new: newPlayers });
+                        
+                        // Find newly added players
+                        const addedPlayers = newPlayers.filter(player => !oldPlayers.includes(player));
+                        addedPlayers.forEach(player => {
+                            if (player !== playerName) {
+                                showNotification(`${player} joined the room`, 'success');
+                            }
+                        });
+                        
+                        // Find removed players
+                        const removedPlayers = oldPlayers.filter(player => !newPlayers.includes(player));
+                        removedPlayers.forEach(player => {
+                            if (player !== playerName) {
+                                showNotification(`${player} left the room`, 'error');
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        
+        // Remove player from room when tab closes
+        window.addEventListener('beforeunload', function() {
+            if (currentRoom && playerName) {
+                const storageKey = `room_${currentRoom}_players`;
+                let roomPlayers = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                const index = roomPlayers.indexOf(playerName);
+                if (index > -1) {
+                    roomPlayers.splice(index, 1);
+                    localStorage.setItem(storageKey, JSON.stringify(roomPlayers));
+                }
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            createParticles();
+            
+            // Select first room by default
+            document.querySelector('.room-option').classList.add('selected');
+            currentRoom = '1';
+            
+        });
+    </script>
+</body>
+</html>
