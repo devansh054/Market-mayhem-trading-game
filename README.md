@@ -69,6 +69,11 @@ The backend will start on `http://localhost:8080`
 - **Room Management** - Dynamic room capacity and player tracking
 - **Market Data** - Real-time stock price updates
 
+
+## 🔗 Live Demo
+Game URL: https://dazzling-vacherin-33f191.netlify.app
+Backend API: https://market-mayhem-trading-game-7.onrender.com
+
 ## Development 👨‍💻
 
 The game uses localStorage for client-side room management and WebSockets for real-time communication between the Spring Boot backend and multiple browser clients.
