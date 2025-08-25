@@ -1,6 +1,6 @@
 # Market Mayhem - Multiplayer Trading Game 📈
 
-A real-time multiplayer stock trading game built with Spring Boot and WebSockets.
+🚀 Real-time multiplayer stock trading game with WebSocket connections, dynamic room system, and live P&L tracking. Built with Spring Boot backend and modern responsive frontend.
 
 ## Features ✨
 
