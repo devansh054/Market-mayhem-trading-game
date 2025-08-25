@@ -1,3 +1,6 @@
+![image alt](https://github.com/devansh054/Market-mayhem-trading-game/blob/04414337a8459d9869912d51ad26d6e7aec11c7e/APP_U1_2.jpeg)
+
+
 # Market Mayhem - Multiplayer Trading Game 📈
 
 🚀 Real-time multiplayer stock trading game with WebSocket connections, dynamic room system, and live P&L tracking. Built with Spring Boot backend and modern responsive frontend.
